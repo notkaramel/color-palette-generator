@@ -59,9 +59,19 @@
     }
 
     function generatePalette() {
-      const c100 = hexToRgb(document.getElementById("color100").value);
-      const c500 = hexToRgb(document.getElementById("color500").value);
-      const c900 = hexToRgb(document.getElementById("color900").value);
+      const color100Val = document.getElementById("color100").value;
+      const color500Val = document.getElementById("color500").value;
+      const color900Val = document.getElementById("color900").value;
+
+      // Save to localStorage
+      localStorage.setItem("color100", color100Val);
+      localStorage.setItem("color500", color500Val);
+      localStorage.setItem("color900", color900Val);
+
+      const c100 = hexToRgb(color100Val);
+      const c500 = hexToRgb(color500Val);
+      const c900 = hexToRgb(color900Val);
+
       const levels = [100, 200, 300, 400, 500, 600, 700, 800, 900];
       const palette = [];
 
@@ -94,6 +104,20 @@
         paletteDiv.appendChild(div);
       });
     }
+
+    function loadFromStorage() {
+      const saved100 = localStorage.getItem("color100") || "#FEE2E2";
+      const saved500 = localStorage.getItem("color500") || "#EF4444";
+      const saved900 = localStorage.getItem("color900") || "#7F1D1D";
+
+      document.getElementById("color100").value = saved100;
+      document.getElementById("color500").value = saved500;
+      document.getElementById("color900").value = saved900;
+
+      generatePalette();
+    }
+
+    window.onload = loadFromStorage;
   </script>
 </body>
 </html>
