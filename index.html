@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Color Palette Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-100 p-6">
+  <div class="max-w-xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4 text-center">Color Palette Generator</h1>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div>
+        <label class="block text-sm font-medium mb-1">Color 100</label>
+        <input id="color100" type="text" placeholder="#FEE2E2" class="w-full p-2 border rounded" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Color 500</label>
+        <input id="color500" type="text" placeholder="#EF4444" class="w-full p-2 border rounded" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Color 900</label>
+        <input id="color900" type="text" placeholder="#7F1D1D" class="w-full p-2 border rounded" />
+      </div>
+    </div>
+
+    <button onclick="generatePalette()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
+      Generate Palette
+    </button>
+
+    <div id="palette" class="mt-8 grid grid-cols-9 gap-2"></div>
+  </div>
+
+  <script>
+    function hexToRgb(hex) {
+      const cleanHex = hex.replace("#", "");
+      const bigint = parseInt(cleanHex, 16);
+      return {
+        r: (bigint >> 16) & 255,
+        g: (bigint >> 8) & 255,
+        b: bigint & 255
+      };
+    }
+
+    function rgbToHex({r, g, b}) {
+      return "#" + [r, g, b].map(x => {
+        const hex = x.toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+      }).join("");
+    }
+
+    function interpolateColor(c1, c2, factor) {
+      return {
+        r: Math.round(c1.r + (c2.r - c1.r) * factor),
+        g: Math.round(c1.g + (c2.g - c1.g) * factor),
+        b: Math.round(c1.b + (c2.b - c1.b) * factor)
+      };
+    }
+
+    function generatePalette() {
+      const c100 = hexToRgb(document.getElementById("color100").value);
+      const c500 = hexToRgb(document.getElementById("color500").value);
+      const c900 = hexToRgb(document.getElementById("color900").value);
+      const levels = [100, 200, 300, 400, 500, 600, 700, 800, 900];
+      const palette = [];
+
+      for (let i = 0; i < levels.length; i++) {
+        const level = levels[i];
+        let factor;
+        let color;
+
+        if (level < 500) {
+          factor = (level - 100) / 400;
+          color = interpolateColor(c100, c500, factor);
+        } else if (level === 500) {
+          color = c500;
+        } else {
+          factor = (level - 500) / 400;
+          color = interpolateColor(c500, c900, factor);
+        }
+
+        palette.push({ level, hex: rgbToHex(color) });
+      }
+
+      const paletteDiv = document.getElementById("palette");
+      paletteDiv.innerHTML = "";
+
+      palette.forEach(({ level, hex }) => {
+        const div = document.createElement("div");
+        div.className = "h-16 w-full rounded shadow";
+        div.style.backgroundColor = hex;
+        div.title = `${level}: ${hex}`;
+        paletteDiv.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>
+
